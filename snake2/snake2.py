@@ -5,7 +5,7 @@ from pygame.math import Vector2
 pygame.init()
 
 snake_block = 20
-cells = 20
+cells = 25
 dis_height = snake_block * cells
 dis_width = snake_block * cells
 
@@ -13,6 +13,7 @@ display = pygame.display.set_mode((dis_height, dis_width))
 pygame.display.set_caption('Snake Game By Amadeus')
 
 apple = pygame.image.load('Snake/apple.png').convert_alpha()
+blockimg = pygame.image.load('Snake/block.png').convert_alpha()
 
 class FOOD:
     def __init__(self):
@@ -23,7 +24,6 @@ class FOOD:
     def food_draw(self):
         food_rect = pygame.Rect(self.pos.x * snake_block, self.pos.y * snake_block, snake_block, snake_block)
         display.blit(apple, food_rect)
-        #pygame.draw.rect(display,(pygame.Color('red')), food_rect)
 
     def randomiser(self):
         self.x = random.randint(0, cells - 1)
@@ -41,7 +41,7 @@ class SNAKE:
         pygame.draw.rect(display, (pygame.Color('gold')), head_rect)
         for block in self.body[1:]:
             snake_rect = pygame.Rect(block.x * snake_block, block.y * snake_block, snake_block, snake_block)
-            pygame.draw.rect(display, (pygame.Color('black')), snake_rect)
+            display.blit(blockimg, snake_rect)
 
     def move(self):
         if self.grow == False:
@@ -68,6 +68,7 @@ class MAIN:
     def draw(self):
         self.food.food_draw()
         self.snake.draw_snake()
+        self.scoredraw()
 
     def eat(self):
         if self.food.pos == self.snake.body[0]:
@@ -76,6 +77,14 @@ class MAIN:
         for block in self.snake.body[1:]:
             if block == self.food.pos:
                 self.food.randomiser()
+
+    def scoredraw(self):
+        text = str(len(self.snake.body))
+        scoresurface = font.render(text, True, (56, 74, 112))
+        score_x = int (snake_block * cells - 60)
+        score_y = int (snake_block * cells - 40)
+        score_rect = scoresurface.get_rect(center = (score_x, score_y))
+        display.blit(scoresurface, score_rect)
 
     def gameover(self):
         pygame.quit()
@@ -93,6 +102,7 @@ game = MAIN()
 SCREENUPDATE = pygame.USEREVENT
 pygame.time.set_timer(SCREENUPDATE, 150)
 
+font = pygame.font.Font(None, 25)
 clock = pygame.time.Clock();
 
 snake = 10
@@ -119,6 +129,9 @@ while not close:
                 game.snake.dir = Vector2(1, 0)
         if event.type == SCREENUPDATE:
             game.snake.move()
+    #font = pygame.font.SysFont(None, 25)
+    #text = font.render("Score: "+str(game.score), True, (100, 150, 150))
+    #display.blit(text,(0,0))
     display.fill(lightblue)
     game.draw()
     game.eat()
